@@ -1,0 +1,24 @@
+version: '3.1'
+services:
+  file-service:
+    build: file-service
+    image: file-image
+    container_name: file-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - file-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://file-db:5432/gge
+      - SPRING_DATASOURCE_USER=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+
+  file-db:
+    image: postgres:14-alpine
+    container_name: file-db
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root

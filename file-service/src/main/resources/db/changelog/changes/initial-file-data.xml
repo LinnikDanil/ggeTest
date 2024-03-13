@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2" author="Danil Linnik">
+        <insert tableName="files">
+            <column name="file_name" value="test_file_1.txt"/>
+            <column name="content_type" value="text/plain"/>
+            <column name="size" valueNumeric="12"/>
+        </insert>
+        <insert tableName="files">
+            <column name="file_name" value="test_file_2.txt"/>
+            <column name="content_type" value="text/plain"/>
+            <column name="size" valueNumeric="20"/>
+        </insert>
+
+        <insert tableName="file_chunks">
+            <column name="data" value="Hello world!"/>
+            <column name="file_id" valueNumeric="1"/>
+        </insert>
+        <insert tableName="file_chunks">
+            <column name="data" value="Привет Мир!"/>
+            <column name="file_id" valueNumeric="2"/>
+        </insert>
+
+    </changeSet>
+
+</databaseChangeLog>

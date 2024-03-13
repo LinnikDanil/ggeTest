@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="Danil Linnik">
+        <createTable tableName="files">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_files"/>
+            </column>
+            <column name="file_name" type="varchar(255)"/>
+            <column name="content_type" type="varchar(255)"/>
+            <column name="size" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="file_chunks">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_file_chunks"/>
+            </column>
+            <column name="data" type="bytea"/>
+            <column name="file_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_file_chunks_files"
+                                 baseTableName="file_chunks" baseColumnNames="file_id"
+                                 referencedTableName="files" referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
