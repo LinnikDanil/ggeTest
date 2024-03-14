@@ -43,6 +43,7 @@ public class FileServiceImpl implements FileService {
     private int chunkSize;
 
     @Override
+    @Transactional
     public FileShortDto saveFile(MultipartFile multipartFile) throws IOException {
         validateFile(multipartFile);
 

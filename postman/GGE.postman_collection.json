@@ -20,7 +20,7 @@
                 {
                   "key": "file",
                   "type": "file",
-                  "src": "/C:/Users/lin-_/OneDrive/Рабочий стол/response.jpeg"
+                  "src": "postman-cloud:///1eee096c-a4ee-4b70-9f3d-6a93d84d4ba1"
                 }
               ]
             },
@@ -56,13 +56,13 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/files/6",
+              "raw": "{{baseUrl}}/files/3",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "files",
-                "6"
+                "3"
               ]
             }
           },
@@ -299,6 +299,144 @@
           "response": []
         },
         {
+          "name": "Успешное удаление файла",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Попытка удаления несуществующего файла",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response has error message\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.error).to.eql(\"Файл с ID = -1 не найден\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files/-1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files",
+                "-1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение списка файлов с невалидным параметром пагинации Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 500 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(500);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response has error message about 'from' parameter\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.error).to.include(\"listFiles.from: must be greater than or equal to 0\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/files?from=-1&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "-1"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Успешное получение списка файлов",
           "event": [
             {
@@ -461,7 +599,7 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/files?sort=desc",
+              "raw": "{{baseUrl}}/files?sortDirection=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -470,7 +608,7 @@
               ],
               "query": [
                 {
-                  "key": "sort",
+                  "key": "sortDirection",
                   "value": "desc"
                 }
               ]
@@ -485,13 +623,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 400 Bad Request\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
+                  "pm.test(\"Status code is 500 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(500);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Response has error message about 'from' parameter\", function () {\r",
                   "    var jsonData = pm.response.json();\r",
-                  "    pm.expect(jsonData.error).to.include(\"Page index must not be less than zero\");\r",
+                  "    pm.expect(jsonData.error).to.include(\"listFiles.from: must be greater than or equal to 0\");\r",
                   "});\r",
                   ""
                 ],
@@ -500,22 +638,9 @@
               }
             }
           ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "method": "GET",
             "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
-                }
-              ]
-            },
             "url": {
               "raw": "{{baseUrl}}/files?from=-1&size=10",
               "host": [
@@ -545,13 +670,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 400 Bad Request\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
+                  "pm.test(\"Status code is 500 Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(500);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Response has error message about 'size' parameter\", function () {\r",
                   "    var jsonData = pm.response.json();\r",
-                  "    pm.expect(jsonData.error).to.include(\"Page size must not be less than one\");\r",
+                  "    pm.expect(jsonData.error).to.include(\"listFiles.size: must be greater than 0\");\r",
                   "});\r",
                   ""
                 ],
@@ -597,22 +722,19 @@
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "File List",
+      "item": [
         {
-          "name": "Получение списка файлов с невалидным параметром сортировки",
+          "name": "Получение файлов с фильтрацией по типу содержимого",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 400 Bad Request\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response has error message about 'sort' parameter\", function () {\r",
-                  "    var jsonData = pm.response.json();\r",
-                  "    pm.expect(jsonData.error).to.include(\"Invalid value 'invalid' for orders given; Has to be either 'desc' or 'asc' (case insensitive)\");\r",
-                  "});\r",
                   ""
                 ],
                 "type": "text/javascript",
@@ -637,7 +759,379 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/files?sort=invalid",
+              "raw": "{{baseUrl}}/files?contentType=image/jpeg&contentType=image/png",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "contentType",
+                  "value": "image/jpeg"
+                },
+                {
+                  "key": "contentType",
+                  "value": "image/png"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с фильтрацией по размеру",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?sizeMin=20&sizeMax=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "sizeMin",
+                  "value": "20"
+                },
+                {
+                  "key": "sizeMax",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с фильтрацией по дате создания",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?dateMin=2022-01-06 00:00:00&dateMax=2023-03-09 00:00:00",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "dateMin",
+                  "value": "2022-01-06 00:00:00"
+                },
+                {
+                  "key": "dateMax",
+                  "value": "2023-03-09 00:00:00"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с пагинацией и сортировкой",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?from=0&size=5&sort=size&sortDirection=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                },
+                {
+                  "key": "sort",
+                  "value": "size"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с фильтрацией по имени с использованием точного совпадения",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?name=test_file_3.pdf&exactMatch=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "test_file_3.pdf"
+                },
+                {
+                  "key": "exactMatch",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с фильтрацией по имени с использованием частичного совпадения",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?name=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с комбинированной фильтрацией по размеру и типу содержимого",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?sizeMin=10&sizeMax=50&contentType=text/plain",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "sizeMin",
+                  "value": "10"
+                },
+                {
+                  "key": "sizeMax",
+                  "value": "50"
+                },
+                {
+                  "key": "contentType",
+                  "value": "text/plain"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение файлов с сортировкой по дате создания",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/D:/Моё/Разные видео, фото/Аватарки/Для аватарок.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/files?sort=dateOfCreated&sortDirection=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -647,7 +1141,11 @@
               "query": [
                 {
                   "key": "sort",
-                  "value": "invalid"
+                  "value": "dateOfCreated"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "desc"
                 }
               ]
             }
@@ -655,15 +1153,12 @@
           "response": []
         },
         {
-          "name": "Успешное удаление файла",
+          "name": "Получение определенного количества файлов с заданным смещением (пагинация)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 204\", function () {\r",
-                  "    pm.response.to.have.status(204);\r",
-                  "});\r",
                   ""
                 ],
                 "type": "text/javascript",
@@ -671,8 +1166,11 @@
               }
             }
           ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [],
             "body": {
               "mode": "formdata",
@@ -685,33 +1183,34 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/files/1",
+              "raw": "{{baseUrl}}/files?from=5&size=5",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "files",
-                "1"
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "5"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                }
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Попытка удаления несуществующего файла",
+          "name": "Получение файлов с фильтрацией по дате создания и типу содержимого",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Status code is 404\", function () {\r",
-                  "    pm.response.to.have.status(404);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Response has error message\", function () {\r",
-                  "    var jsonData = pm.response.json();\r",
-                  "    pm.expect(jsonData.error).to.eql(\"Файл с ID = -1 не найден\");\r",
-                  "});\r",
                   ""
                 ],
                 "type": "text/javascript",
@@ -719,8 +1218,11 @@
               }
             }
           ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [],
             "body": {
               "mode": "formdata",
@@ -733,13 +1235,22 @@
               ]
             },
             "url": {
-              "raw": "{{baseUrl}}/files/-1",
+              "raw": "{{baseUrl}}/files?dateMin=2022-01-01 00:00:00&contentType=application/pdf",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "files",
-                "-1"
+                "files"
+              ],
+              "query": [
+                {
+                  "key": "dateMin",
+                  "value": "2022-01-01 00:00:00"
+                },
+                {
+                  "key": "contentType",
+                  "value": "application/pdf"
+                }
               ]
             }
           },
