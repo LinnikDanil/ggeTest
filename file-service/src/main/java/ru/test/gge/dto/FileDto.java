@@ -10,4 +10,5 @@ public class FileDto {
     private String fileName;
     private String contentType;
     private Long size;
+    private String dateOfCreated;
 }

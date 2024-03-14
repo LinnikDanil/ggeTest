@@ -6,8 +6,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <include file="db/changelog/changes/initial-file-schema.xml"/>
-    <include file="db/changelog/changes/add-date-of-create-file-schema.xml"/>
-    <include file="db/changelog/changes/initial-file-data.xml"/>
+    <changeSet id="3" author="Danil Linnik">
+        <addColumn tableName="files">
+            <column name="date_of_created" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>
