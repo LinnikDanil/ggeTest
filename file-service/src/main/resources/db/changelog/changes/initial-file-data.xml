@@ -7,17 +7,53 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="2" author="Danil Linnik">
+
+        <!-- Создание файлов -->
         <insert tableName="files">
             <column name="file_name" value="test_file_1.txt"/>
             <column name="content_type" value="text/plain"/>
             <column name="size" valueNumeric="12"/>
+            <column name="date_of_created" valueNumeric="'2024-03-12 00:00:00'"/>
         </insert>
         <insert tableName="files">
             <column name="file_name" value="test_file_2.txt"/>
             <column name="content_type" value="text/plain"/>
             <column name="size" valueNumeric="20"/>
+            <column name="date_of_created" valueNumeric="'2023-03-13 00:00:00'"/>
+        </insert>
+        <insert tableName="files">
+            <column name="file_name" value="test_file_3.pdf"/>
+            <column name="content_type" value="application/pdf"/>
+            <column name="size" valueNumeric="34"/>
+            <column name="date_of_created" valueDate="2023-03-11"/>
+        </insert>
+        <insert tableName="files">
+            <column name="file_name" value="test_file_4.jpg"/>
+            <column name="content_type" value="image/jpeg"/>
+            <column name="size" valueNumeric="56"/>
+            <column name="date_of_created" valueDate="2023-03-10"/>
+        </insert>
+        <insert tableName="files">
+            <column name="file_name" value="test_file_5.png"/>
+            <column name="content_type" value="image/png"/>
+            <column name="size" valueNumeric="78"/>
+            <column name="date_of_created" valueDate="2023-03-09"/>
+        </insert>
+        <insert tableName="files">
+            <column name="file_name" value="test_file_6.docx"/>
+            <column name="content_type"
+                    value="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+            <column name="size" valueNumeric="21"/>
+            <column name="date_of_created" valueDate="2023-03-08"/>
+        </insert>
+        <insert tableName="files">
+            <column name="file_name" value="test_file_7.xlsx"/>
+            <column name="content_type" value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+            <column name="size" valueNumeric="15"/>
+            <column name="date_of_created" valueDate="2023-03-07"/>
         </insert>
 
+        <!-- Создание чанков для файлов -->
         <insert tableName="file_chunks">
             <column name="data" value="Hello world!"/>
             <column name="file_id" valueNumeric="1"/>
@@ -25,6 +61,26 @@
         <insert tableName="file_chunks">
             <column name="data" value="Привет Мир!"/>
             <column name="file_id" valueNumeric="2"/>
+        </insert>
+        <insert tableName="file_chunks">
+            <column name="data" value="Some PDF data"/>
+            <column name="file_id" valueNumeric="3"/>
+        </insert>
+        <insert tableName="file_chunks">
+            <column name="data" value="Some JPEG data"/>
+            <column name="file_id" valueNumeric="4"/>
+        </insert>
+        <insert tableName="file_chunks">
+            <column name="data" value="Some PNG data"/>
+            <column name="file_id" valueNumeric="5"/>
+        </insert>
+        <insert tableName="file_chunks">
+            <column name="data" value="Some Docx data"/>
+            <column name="file_id" valueNumeric="6"/>
+        </insert>
+        <insert tableName="file_chunks">
+            <column name="data" value="Some XLSX data"/>
+            <column name="file_id" valueNumeric="7"/>
         </insert>
 
     </changeSet>

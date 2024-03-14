@@ -42,7 +42,7 @@ public class FileController {
     @PostMapping("/upload")
     @ResponseStatus(HttpStatus.CREATED)
     public FileShortDto uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        log.info("Загрузка файла: {}, размером = {} байт", file.getOriginalFilename(), file.getSize());
+        log.info("Запрос на сохранение файла: {}, размером = {} байт", file.getOriginalFilename(), file.getSize());
         return fileService.saveFile(file);
     }
 
@@ -53,9 +53,21 @@ public class FileController {
     @GetMapping
     public List<FileDto> listFiles(@RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int from,
                                    @RequestParam(value = "size", defaultValue = "10") @Positive int size,
-                                   @RequestParam(value = "sort", defaultValue = "asc") String sort) {
-        log.info("Список файлов - from: {}, size: {}, sort: {}", from, size, sort);
-        return fileService.listFiles(from, size, sort);
+                                   @RequestParam(value = "sort", defaultValue = "id") String sort,
+                                   @RequestParam(value = "sortDirection", defaultValue = "asc") String sortDirection,
+                                   @RequestParam(value = "name", required = false) String name,
+                                   @RequestParam(value = "exactMatch", defaultValue = "false") boolean exactMatch,
+                                   @RequestParam(value = "contentType", required = false) List<String> contentTypes,
+                                   @RequestParam(value = "sizeMin", required = false) Long sizeMin,
+                                   @RequestParam(value = "sizeMax", required = false) Long sizeMax,
+                                   @RequestParam(value = "dateMin", required = false) String dateMin,
+                                   @RequestParam(value = "dateMax", required = false) String dateMax) {
+        log.info("Запрос на получение списка файлов с параметрами - начать с : {} элемента, размер: {}, сортировка: {}, направление сортировки: {}, " +
+                        "имя: {}, точное совпадение: {}, типы содержимого: {}, мин. размер: {}, макс. размер: {}, дата начала: {}, дата окончания: {}",
+                from, size, sort, sortDirection, name, exactMatch, contentTypes, sizeMin, sizeMax, dateMin, dateMax);
+
+        return fileService.listFiles(from, size, sort, sortDirection, name, exactMatch,
+                contentTypes, sizeMin, sizeMax, dateMin, dateMax);
     }
 
     @Operation(summary = "Скачивание файла", description = "Позволяет скачать файл по ID")
@@ -63,7 +75,7 @@ public class FileController {
             content = {@Content(mediaType = "application/octet-stream")})
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
-        log.info("Скачивание файла с ID: {}", id);
+        log.info("Запрос на скачивание файла с ID: {}", id);
 
         FileDto file = fileService.downloadFileMetadata(id);
         byte[] data = fileService.downloadFile(id);
@@ -86,7 +98,7 @@ public class FileController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFile(@PathVariable Long id) {
-        log.info("Удаление файла с ID: {}", id);
+        log.info("Запрос на удаление файла с ID: {}", id);
         fileService.deleteFile(id);
     }
 }

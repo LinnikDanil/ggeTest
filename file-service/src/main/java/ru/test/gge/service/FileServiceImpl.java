@@ -1,5 +1,6 @@
 package ru.test.gge.service;
 
+import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,14 +17,20 @@ import ru.test.gge.error.exception.FileNotFoundException;
 import ru.test.gge.error.exception.FileValidationException;
 import ru.test.gge.model.File;
 import ru.test.gge.model.FileChunk;
+import ru.test.gge.model.QFile;
 import ru.test.gge.repository.FileRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ru.test.gge.constants.Constants.INVALID_CHARS;
+import static ru.test.gge.constants.Constants.TIMESTAMP_FORMATTER;
 
 @Service
 @RequiredArgsConstructor
@@ -37,16 +44,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public FileShortDto saveFile(MultipartFile multipartFile) throws IOException {
-        //Проверка, что файл не пустой
-        if (multipartFile.isEmpty()) {
-            log.error("Попытка загрузки пустого файла");
-            throw new FileValidationException("Пустой файл не может быть загружен");
-        }
-
-        //Проверка, что имя файла существует и что оно не пустое
-        if (multipartFile.getOriginalFilename() == null || multipartFile.getOriginalFilename().isBlank()) {
-            throw new FileValidationException("Имя файла не должно быть пустым.");
-        }
+        validateFile(multipartFile);
 
         log.info("Начало загрузки файла: {}", multipartFile.getOriginalFilename());
         File file = new File();
@@ -84,11 +82,43 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<FileDto> listFiles(int from, int size, String sort) {
-        log.info("Получение списка файлов: страница {}, размер {}, сортировка {}", from, size, sort);
-        Pageable pageable = PageRequest.of(from, size, Sort.Direction.fromString(sort), "id");
+    public List<FileDto> listFiles(int from, int size, String sort, String sortDirection,
+                                   String name, boolean exactMatch, List<String> contentTypes,
+                                   Long sizeMin, Long sizeMax, String dateMin, String dateMax) {
+        log.info("Получение списка файлов с параметрами - начать с : {} элемента, размер: {}, сортировка: {}, направление сортировки: {}, " +
+                        "имя: {}, точное совпадение: {}, типы содержимого: {}, мин. размер: {}, макс. размер: {}, дата начала: {}, дата окончания: {}",
+                from, size, sort, sortDirection, name, exactMatch, contentTypes, sizeMin, sizeMax, dateMin, dateMax);
 
-        return fileRepository.findAll(pageable).stream()
+
+        Sort sortOrder = Sort.by(Sort.Direction.fromString(sortDirection), sort);
+        Pageable pageable = PageRequest.of(from / size, size, sortOrder);
+
+        LocalDateTime startDate =
+                dateMin != null ? LocalDateTime.parse(dateMin, TIMESTAMP_FORMATTER) : LocalDateTime.now().minusYears(100);
+        LocalDateTime endDate =
+                dateMax != null ? LocalDateTime.parse(dateMax, TIMESTAMP_FORMATTER) : LocalDateTime.now();
+
+        if (startDate.isAfter(endDate)) {
+            throw new FileValidationException("Начальная дата не может превышать окончательную");
+        }
+
+        // создание Predicate для Querydsl
+        BooleanBuilder builder = new BooleanBuilder();
+        Optional.ofNullable(name).ifPresent(n -> {
+            if (exactMatch) {
+                builder.and(QFile.file.fileName.equalsIgnoreCase(n));
+            } else {
+                builder.and(QFile.file.fileName.containsIgnoreCase(n));
+            }
+        });
+        Optional.ofNullable(contentTypes).ifPresent(ct -> builder.and(QFile.file.contentType.in(ct)));
+        Optional.ofNullable(sizeMin).ifPresent(min -> builder.and(QFile.file.size.goe(min)));
+        Optional.ofNullable(sizeMax).ifPresent(max -> builder.and(QFile.file.size.loe(max)));
+        builder.and(QFile.file.dateOfCreated.between(startDate, endDate));
+
+        List<File> files = fileRepository.findAll(builder.getValue(), pageable).getContent();
+
+        return files.stream()
                 .map(FileMapper::toFileDto)
                 .collect(Collectors.toList());
     }
@@ -134,5 +164,36 @@ public class FileServiceImpl implements FileService {
     private File getFileById(long fileId) {
         return fileRepository.findById(fileId).orElseThrow(
                 () -> new FileNotFoundException("Файл с ID = " + fileId + " не найден"));
+    }
+
+    private void validateFile(MultipartFile file) {
+        if (file.isEmpty()) {
+            log.error("Попытка загрузки пустого файла");
+            throw new FileValidationException("Пустой файл не может быть загружен");
+        }
+
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || fileName.isBlank()) {
+            log.error("Попытка загрузки файла с пустым именем");
+            throw new FileValidationException("Имя файла не должно быть пустым.");
+        }
+
+        if (fileName.length() > 255) {
+            log.error("Попытка загрузки слишком длинного файла");
+            throw new FileValidationException("Имя файла содержит слишком длинное.");
+        }
+
+        // Проверка каждого символа имени файла
+        for (char c : fileName.toCharArray()) {
+            if (INVALID_CHARS.indexOf(c) != -1) {
+                log.error("Попытка загрузки файла с системными символами");
+                throw new FileValidationException("Имя файла содержит недопустимые символы.");
+            }
+        }
+
+        if (fileRepository.existsByFileNameIgnoreCaseAndContentTypeIgnoreCase(fileName, file.getContentType())) {
+            log.error("Попытка загрузки файла с существующим именем");
+            throw new FileValidationException("Файл с таким именем уже существует.");
+        }
     }
 }
